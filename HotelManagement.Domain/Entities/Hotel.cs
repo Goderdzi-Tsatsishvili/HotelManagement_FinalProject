@@ -13,5 +13,9 @@ namespace HotelManagement.Domain.Entities
         public string Country { get; set; }
         public string City { get; set; }
         public string Address { get; set; }
+
+        //Navigation Properties
+        public ICollection<AppUser> Managers { get; set; }
+        public ICollection<Room> Rooms { get; set; }
     }
 }

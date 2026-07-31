@@ -1,12 +1,20 @@
 ﻿
 using Microsoft.AspNetCore.Identity;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HotelManagement.Domain.Entities
 {
     public class AppUser : IdentityUser
     {
-        public int FirstName { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+        public string PersonalNumber { get; set; }
+
+        [ForeignKey(nameof(ManagerHotel))]
+        public int HotelId { get; set; }
+
         //Navigation Properties
+        public Hotel ManagerHotel { get; set; }
         public ICollection<Reservation> Reservations { get; set; }
     }
 }
