@@ -15,7 +15,11 @@ namespace HotelManagement.Infrastructure.Data
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
+            builder.SeedData();
             builder.NormalizeIdentityTableNames();
+
+            builder.Entity<ReservationRoom>()
+                .HasKey(rr => new { rr.ReservationId, rr.RoomId });
         }
 
         public DbSet<AppUser> Users { get; set; }

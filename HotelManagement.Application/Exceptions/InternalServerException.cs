@@ -1,4 +1,4 @@
-﻿usin
+﻿
 namespace HotelManagement.Application.Exceptions
 {
     public class InternalServerException : Exception

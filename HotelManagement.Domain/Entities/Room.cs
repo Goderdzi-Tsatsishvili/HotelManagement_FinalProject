@@ -16,5 +16,6 @@ namespace HotelManagement.Domain.Entities
 
         //Navigation Properties
         public Hotel RoomHotel { get; set; }
+        public ICollection<ReservationRoom> ReservationRooms { get; set; }
     }
 }

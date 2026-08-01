@@ -1,4 +1,4 @@
-﻿us
+﻿
 namespace HotelManagement.Application.Exceptions
 {
     public class NotFoundException : Exception
