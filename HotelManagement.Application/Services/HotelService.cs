@@ -15,6 +15,8 @@ namespace HotelManagement.Application.Services
         {
             if (model is null) throw new BadRequestException("Creation Model cannot be empty");
 
+            if (model.Rating > 5 || model.Rating < 1) throw new NotAllowedException("Hotel rating cannot be more than 5 or less than 1");
+
             var newHotel = mapper.Map<Hotel>(model);
             await hotelRepo.AddAsync(newHotel);
             return await hotelRepo.SaveAsync();

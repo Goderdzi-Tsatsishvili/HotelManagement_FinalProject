@@ -26,7 +26,7 @@ namespace HotelManagement.API.Controllers
         }
 
         [HttpGet("get/{hotelId}")]
-        public async Task<IActionResult> GetSingleHotel(int hotelId)
+        public async Task<IActionResult> GetSingleHotel([FromRoute] int hotelId)
         {
             var hotel = await hotelService.GetHotelAsync(hotelId);
             var resp = new CommonResponse()
