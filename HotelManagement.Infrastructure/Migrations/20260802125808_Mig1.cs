@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace HotelManagement.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class test : Migration
+    public partial class Mig1 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -45,15 +45,24 @@ namespace HotelManagement.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ReservationRooms",
+                name: "Rooms",
                 columns: table => new
                 {
-                    ReservationId = table.Column<int>(type: "int", nullable: false),
-                    RoomId = table.Column<int>(type: "int", nullable: false)
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    HotelId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ReservationRooms", x => new { x.ReservationId, x.RoomId });
+                    table.PrimaryKey("PK_Rooms", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Rooms_Hotels_HotelId",
+                        column: x => x.HotelId,
+                        principalTable: "Hotels",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -113,52 +122,18 @@ namespace HotelManagement.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Rooms",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    HotelId = table.Column<int>(type: "int", nullable: false),
-                    ReservationRoomReservationId = table.Column<int>(type: "int", nullable: true),
-                    ReservationRoomRoomId = table.Column<int>(type: "int", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Rooms", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Rooms_Hotels_HotelId",
-                        column: x => x.HotelId,
-                        principalTable: "Hotels",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Rooms_ReservationRooms_ReservationRoomReservationId_ReservationRoomRoomId",
-                        columns: x => new { x.ReservationRoomReservationId, x.ReservationRoomRoomId },
-                        principalTable: "ReservationRooms",
-                        principalColumns: new[] { "ReservationId", "RoomId" });
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Reservations",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     CheckInDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    GuestId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    ReservationRoomReservationId = table.Column<int>(type: "int", nullable: true),
-                    ReservationRoomRoomId = table.Column<int>(type: "int", nullable: true)
+                    CheckOutDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    GuestId = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Reservations", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Reservations_ReservationRooms_ReservationRoomReservationId_ReservationRoomRoomId",
-                        columns: x => new { x.ReservationRoomReservationId, x.ReservationRoomRoomId },
-                        principalTable: "ReservationRooms",
-                        principalColumns: new[] { "ReservationId", "RoomId" });
                     table.ForeignKey(
                         name: "FK_Reservations_Users_GuestId",
                         column: x => x.GuestId,
@@ -252,6 +227,29 @@ namespace HotelManagement.Infrastructure.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "ReservationRooms",
+                columns: table => new
+                {
+                    ReservationId = table.Column<int>(type: "int", nullable: false),
+                    RoomId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ReservationRooms", x => new { x.ReservationId, x.RoomId });
+                    table.ForeignKey(
+                        name: "FK_ReservationRooms_Reservations_ReservationId",
+                        column: x => x.ReservationId,
+                        principalTable: "Reservations",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ReservationRooms_Rooms_RoomId",
+                        column: x => x.RoomId,
+                        principalTable: "Rooms",
+                        principalColumn: "Id");
+                });
+
             migrationBuilder.InsertData(
                 table: "Hotels",
                 columns: new[] { "Id", "Address", "City", "Country", "Name", "Rating" },
@@ -264,12 +262,12 @@ namespace HotelManagement.Infrastructure.Migrations
 
             migrationBuilder.InsertData(
                 table: "Rooms",
-                columns: new[] { "Id", "HotelId", "Name", "Price", "ReservationRoomReservationId", "ReservationRoomRoomId" },
+                columns: new[] { "Id", "HotelId", "Name", "Price" },
                 values: new object[,]
                 {
-                    { 1, 1, "Room 1", 299.99m, null, null },
-                    { 2, 2, "Room 2", 150.99m, null, null },
-                    { 3, 3, "Room 3", 160.50m, null, null }
+                    { 1, 1, "Room 1", 299.99m },
+                    { 2, 2, "Room 2", 150.99m },
+                    { 3, 3, "Room 3", 160.50m }
                 });
 
             migrationBuilder.CreateIndex(
@@ -280,14 +278,14 @@ namespace HotelManagement.Infrastructure.Migrations
                 filter: "[NormalizedName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
+                name: "IX_ReservationRooms_RoomId",
+                table: "ReservationRooms",
+                column: "RoomId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Reservations_GuestId",
                 table: "Reservations",
                 column: "GuestId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Reservations_ReservationRoomReservationId_ReservationRoomRoomId",
-                table: "Reservations",
-                columns: new[] { "ReservationRoomReservationId", "ReservationRoomRoomId" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_RoleClaims_RoleId",
@@ -298,11 +296,6 @@ namespace HotelManagement.Infrastructure.Migrations
                 name: "IX_Rooms_HotelId",
                 table: "Rooms",
                 column: "HotelId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Rooms_ReservationRoomReservationId_ReservationRoomRoomId",
-                table: "Rooms",
-                columns: new[] { "ReservationRoomReservationId", "ReservationRoomRoomId" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_UserClaims_UserId",
@@ -341,13 +334,10 @@ namespace HotelManagement.Infrastructure.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "Reservations");
+                name: "ReservationRooms");
 
             migrationBuilder.DropTable(
                 name: "RoleClaims");
-
-            migrationBuilder.DropTable(
-                name: "Rooms");
 
             migrationBuilder.DropTable(
                 name: "UserClaims");
@@ -362,7 +352,10 @@ namespace HotelManagement.Infrastructure.Migrations
                 name: "UserTokens");
 
             migrationBuilder.DropTable(
-                name: "ReservationRooms");
+                name: "Reservations");
+
+            migrationBuilder.DropTable(
+                name: "Rooms");
 
             migrationBuilder.DropTable(
                 name: "IdentityRoles");

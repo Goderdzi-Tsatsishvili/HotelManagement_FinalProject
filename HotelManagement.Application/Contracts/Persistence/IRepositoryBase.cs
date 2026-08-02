@@ -25,7 +25,7 @@ namespace HotelManagement.Application.Contracts.Persistence
             Func<IQueryable<T>, IQueryable<T>>? include = null);
 
         Task AddAsync(T entity);
-        Task<int> SaveAsync(CancellationToken cancellationToken);
+        Task<int> SaveAsync(CancellationToken cancellationToken = default);
         void Remove(T entity);
         void Update(T entity);
         void RemoveRange(IEnumerable<T> entities);

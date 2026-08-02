@@ -1,4 +1,6 @@
 ﻿
+using HotelManagement.Application.Models.Hotel;
+using HotelManagement.Domain.Entities;
 using Mapster;
 
 namespace HotelManagement.Application.Mapping
@@ -7,7 +9,7 @@ namespace HotelManagement.Application.Mapping
     {
         public void Register(TypeAdapterConfig config)
         {
-
+            config.NewConfig<HotelForCreatingDto, Hotel>();
         }
     }
 }

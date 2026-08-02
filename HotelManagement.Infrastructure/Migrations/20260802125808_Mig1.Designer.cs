@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HotelManagement.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260801212242_test")]
-    partial class test
+    [Migration("20260802125808_Mig1")]
+    partial class Mig1
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -179,21 +179,16 @@ namespace HotelManagement.Infrastructure.Migrations
                     b.Property<DateTime>("CheckInDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateTime>("CheckOutDate")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("GuestId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<int?>("ReservationRoomReservationId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("ReservationRoomRoomId")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
                     b.HasIndex("GuestId");
-
-                    b.HasIndex("ReservationRoomReservationId", "ReservationRoomRoomId");
 
                     b.ToTable("Reservations");
                 });
@@ -207,6 +202,8 @@ namespace HotelManagement.Infrastructure.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("ReservationId", "RoomId");
+
+                    b.HasIndex("RoomId");
 
                     b.ToTable("ReservationRooms");
                 });
@@ -229,17 +226,9 @@ namespace HotelManagement.Infrastructure.Migrations
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<int?>("ReservationRoomReservationId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("ReservationRoomRoomId")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
                     b.HasIndex("HotelId");
-
-                    b.HasIndex("ReservationRoomReservationId", "ReservationRoomRoomId");
 
                     b.ToTable("Rooms");
 
@@ -419,11 +408,26 @@ namespace HotelManagement.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("HotelManagement.Domain.Entities.ReservationRoom", null)
-                        .WithMany("Reservations")
-                        .HasForeignKey("ReservationRoomReservationId", "ReservationRoomRoomId");
-
                     b.Navigation("Guest");
+                });
+
+            modelBuilder.Entity("HotelManagement.Domain.Entities.ReservationRoom", b =>
+                {
+                    b.HasOne("HotelManagement.Domain.Entities.Reservation", "Reservation")
+                        .WithMany("ReservationRooms")
+                        .HasForeignKey("ReservationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("HotelManagement.Domain.Entities.Room", "Room")
+                        .WithMany("ReservationRooms")
+                        .HasForeignKey("RoomId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("Reservation");
+
+                    b.Navigation("Room");
                 });
 
             modelBuilder.Entity("HotelManagement.Domain.Entities.Room", b =>
@@ -433,10 +437,6 @@ namespace HotelManagement.Infrastructure.Migrations
                         .HasForeignKey("HotelId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.HasOne("HotelManagement.Domain.Entities.ReservationRoom", null)
-                        .WithMany("Rooms")
-                        .HasForeignKey("ReservationRoomReservationId", "ReservationRoomRoomId");
 
                     b.Navigation("RoomHotel");
                 });
@@ -504,11 +504,14 @@ namespace HotelManagement.Infrastructure.Migrations
                     b.Navigation("Rooms");
                 });
 
-            modelBuilder.Entity("HotelManagement.Domain.Entities.ReservationRoom", b =>
+            modelBuilder.Entity("HotelManagement.Domain.Entities.Reservation", b =>
                 {
-                    b.Navigation("Reservations");
+                    b.Navigation("ReservationRooms");
+                });
 
-                    b.Navigation("Rooms");
+            modelBuilder.Entity("HotelManagement.Domain.Entities.Room", b =>
+                {
+                    b.Navigation("ReservationRooms");
                 });
 #pragma warning restore 612, 618
         }

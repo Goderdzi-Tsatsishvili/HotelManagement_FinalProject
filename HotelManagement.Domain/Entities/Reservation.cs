@@ -1,6 +1,7 @@
 ﻿
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Reflection.PortableExecutable;
 
 namespace HotelManagement.Domain.Entities
 {
@@ -9,6 +10,7 @@ namespace HotelManagement.Domain.Entities
         [Key]
         public int Id { get; set; }
         public DateTime CheckInDate { get; set; }
+        public DateTime CheckOutDate { get; set; }
 
         [ForeignKey(nameof(Guest))]
         public string GuestId { get; set; }

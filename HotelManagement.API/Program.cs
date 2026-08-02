@@ -61,6 +61,7 @@ builder.Services.AddScoped<IReservationRoomRepository, ReservationRoomRepository
 
 //Services
 builder.Services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
+builder.Services.AddScoped<IHotelService, HotelService>();
 
 //Identity
 builder.Services.AddIdentity<AppUser, IdentityRole>(options =>

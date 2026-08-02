@@ -20,6 +20,18 @@ namespace HotelManagement.Infrastructure.Data
 
             builder.Entity<ReservationRoom>()
                 .HasKey(rr => new { rr.ReservationId, rr.RoomId });
+
+            builder.Entity<ReservationRoom>()
+                .HasOne(rr => rr.Room)
+                .WithMany(r => r.ReservationRooms)
+                .HasForeignKey(rr => rr.RoomId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            builder.Entity<ReservationRoom>()
+                .HasOne(rr => rr.Reservation)
+                .WithMany(r => r.ReservationRooms)
+                .HasForeignKey(rr => rr.ReservationId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
 
         public DbSet<AppUser> Users { get; set; }
