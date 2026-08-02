@@ -102,10 +102,10 @@ namespace HotelManagement.API.Controllers
             return StatusCode(resp.HttpStatusCode, resp);
         }
 
-        [HttpPatch("update-hotel")]
-        public async Task<IActionResult> UpdateHotel([FromBody] HotelForUpdatingDto model)
+        [HttpPatch("update-hotel/{hotelId}")]
+        public async Task<IActionResult> UpdateHotel([FromRoute] int hotelId, [FromBody] HotelForUpdatingDto model)
         {
-            var res = await hotelService.UpdateHotelAsync(model);
+            var res = await hotelService.UpdateHotelAsync(hotelId, model);
             var resp = new CommonResponse()
             {
                 Message = CommonResponseMessage.SuccessMessage,

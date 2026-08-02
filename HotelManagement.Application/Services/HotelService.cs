@@ -114,16 +114,17 @@ namespace HotelManagement.Application.Services
             return MapToPagedResponse(hotels, parameters);
         }
 
-        public async Task<int> UpdateHotelAsync(HotelForUpdatingDto model)
+        public async Task<int> UpdateHotelAsync(int hotelId, HotelForUpdatingDto model)
         {
+            if (hotelId <= 0) throw new BadRequestException("HotelId cannot be less or equal to 0");
             if (model is null) throw new BadRequestException("Request model cannot be null");
             if (model.Name is null) throw new BadRequestException("Model name cannot be null");
             if (model.Address is null) throw new BadRequestException("Model address cannot be null");
             if (model.Rating < 0) throw new BadRequestException("Model rating annot be less than 0");
 
-            var hotel = await hotelRepo.GetAsync(filter: h => h.Name == model.Name);
+            var hotel = await hotelRepo.GetAsync(filter: h => h.Id == hotelId);
 
-            if (hotel is null) throw new NotFoundException($"Hotel with the name '{model.Name} wasnt found'");
+            if (hotel is null) throw new NotFoundException($"Hotel with the Id {hotelId} wasnt found'");
 
             mapper.Map(model, hotel);
             hotelRepo.Update(hotel);
