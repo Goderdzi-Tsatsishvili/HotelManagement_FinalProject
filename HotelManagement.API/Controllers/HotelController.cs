@@ -39,5 +39,20 @@ namespace HotelManagement.API.Controllers
 
             return StatusCode(resp.HttpStatusCode, resp);
         }
+
+        [HttpDelete("delete-hotel/{hotelId}")]
+        public async Task<IActionResult> DeleteHotel([FromRoute] int hotelId)
+        {
+            var result = await hotelService.DeleteHotelAsync(hotelId);
+            var resp = new CommonResponse()
+            {
+                Message = CommonResponseMessage.SuccessMessage,
+                IsSuccess = true,
+                HttpStatusCode = Convert.ToInt32(HttpStatusCode.OK),
+                Result = result
+            };
+
+            return StatusCode(resp.HttpStatusCode, resp);
+        }
     }
 }
