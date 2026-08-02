@@ -43,7 +43,7 @@ namespace HotelManagement.API.Controllers
         }
 
         [HttpGet("get-all")]
-        public async Task<IActionResult> GetAllHotels([FromBody] PagedRequestDto model)
+        public async Task<IActionResult> GetAllHotels([FromQuery] PagedRequestDto model)
         {
             var hotels = await hotelService.GetAllHotelsAsync(model);
             var resp = new CommonResponse()
@@ -57,8 +57,8 @@ namespace HotelManagement.API.Controllers
             return StatusCode(resp.HttpStatusCode, resp);
         }
 
-        [HttpGet("get-all/{countryName}")]
-        public async Task<IActionResult> GetAllHotelsOfCountry([FromRoute] string countryName, [FromBody] PagedRequestDto model)
+        [HttpGet("get-all-by-country-name/{countryName}")]
+        public async Task<IActionResult> GetAllHotelsOfCountry([FromRoute] string countryName, [FromQuery] PagedRequestDto model)
         {
             var hotels = await hotelService.GetAllHotelsOfCountryAsync(countryName, model);
             var resp = new CommonResponse()
@@ -72,8 +72,8 @@ namespace HotelManagement.API.Controllers
             return StatusCode(resp.HttpStatusCode, resp);
         }
 
-        [HttpGet("get-all/{cityName}")]
-        public async Task<IActionResult> GetAllHotelsOfCity([FromRoute] string cityName, [FromBody] PagedRequestDto model)
+        [HttpGet("get-all-by-city-name/{cityName}")]
+        public async Task<IActionResult> GetAllHotelsOfCity([FromRoute] string cityName, [FromQuery] PagedRequestDto model)
         {
             var hotels = await hotelService.GetAllHotelsOfCityAsync(cityName, model);
             var resp = new CommonResponse()
@@ -87,8 +87,8 @@ namespace HotelManagement.API.Controllers
             return StatusCode(resp.HttpStatusCode, resp);
         }
 
-        [HttpGet("get-all/{rating}")]
-        public async Task<IActionResult> GetAllHotelsOfRating([FromRoute] int rating, [FromBody] PagedRequestDto model)
+        [HttpGet("get-all-by-rating/{rating}")]
+        public async Task<IActionResult> GetAllHotelsOfRating([FromRoute] int rating, [FromQuery] PagedRequestDto model)
         {
             var hotels = await hotelService.GetAllHotelsOfRatingAsync(rating, model);
             var resp = new CommonResponse()
