@@ -17,6 +17,7 @@ namespace HotelManagement.Infrastructure.Data
             base.OnModelCreating(builder);
             builder.SeedData();
             builder.NormalizeIdentityTableNames();
+            builder.EnsureRefreshTokenIsUnique();
 
             builder.Entity<ReservationRoom>()
                 .HasKey(rr => new { rr.ReservationId, rr.RoomId });
@@ -39,5 +40,6 @@ namespace HotelManagement.Infrastructure.Data
         public DbSet<Reservation> Reservations { get; set; }
         public DbSet<Room> Rooms { get; set; }
         public DbSet<ReservationRoom> ReservationRooms { get; set; }
+        public DbSet<RefreshToken> RefreshTokens { get; set; }
     }
 }

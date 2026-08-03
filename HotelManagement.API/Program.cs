@@ -58,10 +58,14 @@ builder.Services.AddScoped<IHotelRepository, HotelRepository>();
 builder.Services.AddScoped<IRoomRepository, RoomRepository>();
 builder.Services.AddScoped<IReservationRepository, ReservationRepository>();
 builder.Services.AddScoped<IReservationRoomRepository, ReservationRoomRepository>();
+builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 
 //Services
 builder.Services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
 builder.Services.AddScoped<IHotelService, HotelService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<ISmtpService, SmtpServiceWrapper>();
+builder.Services.AddScoped<IEmailService, EmailService>();
 
 //Identity
 builder.Services.AddIdentity<AppUser, IdentityRole>(options =>

@@ -7,6 +7,10 @@ namespace HotelManagement.Infrastructure.Data
 {
     public static class DataSeeder
     {
+        public static void EnsureRefreshTokenIsUnique(this ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<RefreshToken>(entitiy => entitiy.HasIndex(x => x.Token).IsUnique());
+        }
         public static void NormalizeIdentityTableNames(this ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<AppUser>(entity => entity.ToTable(name: "Users"));

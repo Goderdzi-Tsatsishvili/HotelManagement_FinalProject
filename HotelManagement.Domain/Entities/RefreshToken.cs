@@ -7,6 +7,7 @@ namespace HotelManagement.Domain.Entities
     public class RefreshToken
     {
         [Key]
+        [Required]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public Guid Id { get; set; }
 
