@@ -1,7 +1,7 @@
 ﻿
 namespace HotelManagement.Application.Models.Common
 {
-    public class PagedRequestDto
+    public record PagedRequestDto
     {
         public int PageSize { get; set; }
         public int PageNumber { get; set; }

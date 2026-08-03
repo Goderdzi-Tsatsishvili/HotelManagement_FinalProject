@@ -1,7 +1,7 @@
 ﻿
 namespace HotelManagement.Application.Models.Common
 {
-    public class PagedResponseDto<T>
+    public record PagedResponseDto<T>
     {
         public IEnumerable<T> Items { get; set; }
         public int TotalCount { get; set; }
