@@ -7,6 +7,8 @@ namespace HotelManagement.Domain.Entities
     public class Room
     {
         [Key]
+        [Required]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
         public string Name { get; set; }
         public decimal Price { get; set; }
