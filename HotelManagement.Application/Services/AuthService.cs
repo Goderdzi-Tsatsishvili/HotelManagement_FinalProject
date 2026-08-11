@@ -26,7 +26,7 @@ namespace HotelManagement.Application.Services
         private const string _guestRole = "Guest";
         private const string _confirmEmailTitle = "Confirm Email";
 
-        public async Task<string> RegisterGuestAsync(RegistrationRequestDto request, string accountConfirmationUrl = null)
+        public async Task<string> RegisterGuestAsync(GuestRegistrationDto request, string accountConfirmationUrl = null)
         {
             return await RegisterUserAsync(
                 request,
@@ -34,7 +34,7 @@ namespace HotelManagement.Application.Services
                 accountConfirmationUrl);
         }
 
-        public async Task<string> RegisterManagerAsync(RegistrationRequestDto request, string accountConfirmationUrl = null)
+        public async Task<string> RegisterManagerAsync(ManagerRegistrationDto request, string accountConfirmationUrl = null)
         {
             return await RegisterUserAsync(
                 request,
@@ -42,7 +42,7 @@ namespace HotelManagement.Application.Services
                 accountConfirmationUrl);
         }
 
-        public async Task<string> RegisterAdminAsync(RegistrationRequestDto request, string accountConfirmationUrl = null)
+        public async Task<string> RegisterAdminAsync(AdminRegistrationDto request, string accountConfirmationUrl = null)
         {
             return await RegisterUserAsync(
                 request,
@@ -138,10 +138,11 @@ namespace HotelManagement.Application.Services
                 await roleManager.CreateAsync(new IdentityRole(role));
         }
 
-        private async Task<string> RegisterUserAsync(
-            RegistrationRequestDto registrationRequestDto,
+        private async Task<string> RegisterUserAsync<TDto>(
+            TDto registrationRequestDto,
             string role,
             string accountConfirmationUrl = null)
+            where TDto : IRegistrationDto
         {
             var user = mapper.Map<AppUser>(registrationRequestDto);
 

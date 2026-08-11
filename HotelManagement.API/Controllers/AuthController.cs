@@ -11,7 +11,7 @@ namespace HotelManagement.API.Controllers
     public class AuthController(IAuthService authService) : ControllerBase
     {
         [HttpPost("register-admin")]
-        public async Task<IActionResult> RegisterAdmin([FromBody] RegistrationRequestDto request)
+        public async Task<IActionResult> RegisterAdmin([FromBody] AdminRegistrationDto request)
         {
             var confirmationBaseUrl = BuildConfirmationBaseUrl(Request);
             var res = await authService.RegisterAdminAsync(request, confirmationBaseUrl);
@@ -28,7 +28,7 @@ namespace HotelManagement.API.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpPost("register-manager")]
-        public async Task<IActionResult> RegisterManager([FromBody] RegistrationRequestDto request)
+        public async Task<IActionResult> RegisterManager([FromBody] ManagerRegistrationDto request)
         {
             var confirmationBaseUrl = BuildConfirmationBaseUrl(Request);
             var res = await authService.RegisterManagerAsync(request, confirmationBaseUrl);
@@ -43,8 +43,8 @@ namespace HotelManagement.API.Controllers
             return StatusCode(resp.HttpStatusCode, resp);
         }
 
-        [HttpPost("register-guest")]
-        public async Task<IActionResult> RegisterGuest([FromBody] RegistrationRequestDto request)
+        [HttpPost("register")]
+        public async Task<IActionResult> RegisterGuest([FromBody] GuestRegistrationDto request)
         {
             var confirmationBaseUrl = BuildConfirmationBaseUrl(Request);
             var res = await authService.RegisterGuestAsync(request, confirmationBaseUrl);
