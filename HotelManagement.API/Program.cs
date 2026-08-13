@@ -62,10 +62,11 @@ builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 
 //Services
 builder.Services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
-builder.Services.AddScoped<IHotelService, HotelService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ISmtpService, SmtpServiceWrapper>();
 builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<IHotelService, HotelService>();
+builder.Services.AddScoped<IRoomService, RoomService>();
 
 //Identity
 builder.Services.AddIdentity<AppUser, IdentityRole>(options =>

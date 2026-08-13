@@ -14,30 +14,34 @@ namespace HotelManagement.Application.Services
 {
     public class RoomService(IRoomRepository roomRepo, IMapper mapper) : IRoomService
     {
-        public async Task<int> CreateNewRoomAsync(RoomForCreatingDto model)
+        public async Task<int> CreateNewRoomAsync(int hotelId, RoomForCreatingDto model)
         {
             if (model is null) throw new BadRequestException("Request model cannot be null");
             if (model.Price <= 0) throw new NotAllowedException("The room price cannot be less than or equal to 0");
 
             var newRoom = mapper.Map<Room>(model);
+            newRoom.HotelId = hotelId;
             await roomRepo.AddAsync(newRoom);
             return await roomRepo.SaveAsync();
         }
 
-        public async Task<RoomForGettingDto> GetRoomAsync(int roomId)
+        public async Task<RoomForGettingDto> GetRoomAsync(int hotelId, int roomId)
         {
             if (roomId <= 0) throw new BadRequestException("Request Id cannot be less or equal to 0");
 
             var room = await roomRepo.GetAsync(
-                filter: r => r.Id == roomId);
+                filter: r => r.Id == roomId
+                &&
+                r.HotelId == hotelId);
 
-            if (room is null) throw new NotFoundException($"Room with the id {roomId} not found");
+            if (room is null) throw new NotFoundException($"Room with the Id {roomId} not found");
             return mapper.Map<RoomForGettingDto>(room);
         }
 
-        public async Task<PagedResponseDto<RoomListForGettingDto>> GetAllRoomsAsync(PagedRequestDto parameters)
+        public async Task<PagedResponseDto<RoomListForGettingDto>> GetAllRoomsAsync(int hotelId, PagedRequestDto parameters)
         {
             var rooms = await roomRepo.GetAllAsync(
+                filter: r => r.HotelId == hotelId,
                 orderBy: BuildOrderBy(parameters.SortBy),
                 ascending: parameters.Ascending,
                 pageNumber: parameters.PageNumber,
@@ -47,13 +51,15 @@ namespace HotelManagement.Application.Services
         }
 
         public async Task<PagedResponseDto<RoomListForGettingDto>> GetRoomsByPriceAndAvailabilityAsync(
+            int hotelId,
             PagedRequestDto parameters,
             decimal? minprice,
             decimal? maxprice,
             DateTime date)
         {
             var rooms = await roomRepo.GetAllAsync(
-                filter: r => (!minprice.HasValue || r.Price >= minprice.Value) &&
+                filter: r => r.HotelId == hotelId &&
+                             (!minprice.HasValue || r.Price >= minprice.Value) &&
                              (!maxprice.HasValue || r.Price <= maxprice.Value) &&
                              !r.ReservationRooms.Any(rr => rr.Reservation.CheckInDate <= date &&
                                                      rr.Reservation.CheckOutDate > date),

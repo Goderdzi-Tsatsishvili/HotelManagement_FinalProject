@@ -8,7 +8,7 @@ using System.Net;
 namespace HotelManagement.API.Controllers
 {
     [ApiController]
-    [Route("api/hotel")]
+    [Route("api/hotels")]
     public class HotelController(IHotelService hotelService) : ControllerBase
     {
 

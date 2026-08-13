@@ -5,6 +5,5 @@ namespace HotelManagement.Application.Models.Room
     {
         public string Name { get; set; }
         public decimal Price { get; set; }
-        public int HotelId { get; set; }
     }
 }
