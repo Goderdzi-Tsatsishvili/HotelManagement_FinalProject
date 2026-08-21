@@ -1,6 +1,7 @@
 ﻿
 using HotelManagement.Application.Models.Auth;
 using HotelManagement.Application.Models.Hotel;
+using HotelManagement.Application.Models.Reservation;
 using HotelManagement.Application.Models.Room;
 using HotelManagement.Domain.Entities;
 using Mapster;
@@ -21,6 +22,11 @@ namespace HotelManagement.Application.Mapping
             config.NewConfig<Room, RoomForGettingDto>();
             config.NewConfig<Room, RoomListForGettingDto>();
             config.NewConfig<RoomForUpdatingDto, Room>();
+
+            config.NewConfig<ReservationForCreatingDto, Reservation>();
+            config.NewConfig<Reservation, ReservationForGettingDto>();
+            config.NewConfig<Reservation, ReservationListForGettingDto>();
+            config.NewConfig<ReservationForUpdatingDto, Reservation>();
 
             config.NewConfig<GuestRegistrationDto, AppUser>()
                 .Map(dest => dest.UserName, src => src.Email)

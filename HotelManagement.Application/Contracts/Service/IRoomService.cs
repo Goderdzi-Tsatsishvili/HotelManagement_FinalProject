@@ -15,7 +15,7 @@ namespace HotelManagement.Application.Contracts.Service
             decimal? minprice,
             decimal? maxprice,
             DateTime date);
-        Task<int> UpdateRoomAsync(int roomId, RoomForUpdatingDto model);
-        Task<int> DeleteRoomAsync(int roomId);
+        Task<int> UpdateRoomAsync(int hoteId, int roomId, RoomForUpdatingDto model);
+        Task<int> DeleteRoomAsync(int hotelId, int roomId);
     }
 }

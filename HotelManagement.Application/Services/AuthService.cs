@@ -15,6 +15,7 @@ namespace HotelManagement.Application.Services
         IJwtTokenGenerator jwtGenerator,
         IConfiguration config,
         IEmailService emailService,
+        IHotelService hotelService,
         UserManager<AppUser> userManager,
         RoleManager<IdentityRole> roleManager,
         IMapper mapper
@@ -34,12 +35,22 @@ namespace HotelManagement.Application.Services
                 accountConfirmationUrl);
         }
 
-        public async Task<string> RegisterManagerAsync(ManagerRegistrationDto request, string accountConfirmationUrl = null)
+        public async Task<string> RegisterManagerAsync(int hotelId, ManagerRegistrationDto request, string accountConfirmationUrl = null)
         {
-            return await RegisterUserAsync(
+            var hotel = await hotelService.GetHotelAsync(hotelId);
+            
+            var userId = await RegisterUserAsync(
                 request,
                 _managerRole,
                 accountConfirmationUrl);
+
+            var manager = await userManager.FindByIdAsync(userId);
+
+            if(manager is null) throw new NotFoundException($"Manager '{manager.FirstName} {manager.LastName}' not found");
+
+            manager.HotelId = hotelId;
+            await userManager.UpdateAsync(manager);
+            return userId;
         }
 
         public async Task<string> RegisterAdminAsync(AdminRegistrationDto request, string accountConfirmationUrl = null)
@@ -89,6 +100,21 @@ namespace HotelManagement.Application.Services
             var roles = await userManager.GetRolesAsync(user);
 
             return await GenerateTokenPairAsync(user, roles);
+        }
+
+        public async Task<int> DeleteManagerAsync(int hotelId, string managerId)
+        {
+            if (hotelId <= 0) throw new BadRequestException("HotelId cannot be less than or equal to 0");
+            if (managerId is null) throw new BadRequestException("ManagerId cannot be null");
+
+            throw new NotImplementedException();
+        }
+
+        public async Task<int> DeleteGuestAsync(string guestId)
+        {
+            if (guestId is null) throw new BadRequestException("GuestId cannot be null");
+
+            throw new NotImplementedException();
         }
 
         //Private Helpers

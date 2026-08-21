@@ -10,6 +10,7 @@ namespace HotelManagement.API.Controllers
     [Route("api/auth")]
     public class AuthController(IAuthService authService) : ControllerBase
     {
+        [Authorize(Roles = "Admin")]
         [HttpPost("register-admin")]
         public async Task<IActionResult> RegisterAdmin([FromBody] AdminRegistrationDto request)
         {
@@ -18,23 +19,6 @@ namespace HotelManagement.API.Controllers
             var resp = new CommonResponse()
             {
                 Message = "Admin Registered Successfully",
-                IsSuccess = true,
-                HttpStatusCode = Convert.ToInt32(HttpStatusCode.Created),
-                Result = res
-            };
-
-            return StatusCode(resp.HttpStatusCode, resp);
-        }
-
-        [Authorize(Roles = "Admin")]
-        [HttpPost("register-manager")]
-        public async Task<IActionResult> RegisterManager([FromBody] ManagerRegistrationDto request)
-        {
-            var confirmationBaseUrl = BuildConfirmationBaseUrl(Request);
-            var res = await authService.RegisterManagerAsync(request, confirmationBaseUrl);
-            var resp = new CommonResponse()
-            {
-                Message = "Manager Registered Successfully",
                 IsSuccess = true,
                 HttpStatusCode = Convert.ToInt32(HttpStatusCode.Created),
                 Result = res

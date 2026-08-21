@@ -3,7 +3,6 @@ using HotelManagement.Application.Contracts.Persistence;
 using HotelManagement.Application.Contracts.Service;
 using HotelManagement.Application.Exceptions;
 using HotelManagement.Application.Models.Common;
-using HotelManagement.Application.Models.Hotel;
 using HotelManagement.Application.Models.Room;
 using HotelManagement.Domain.Entities;
 using MapsterMapper;
@@ -57,6 +56,10 @@ namespace HotelManagement.Application.Services
             decimal? maxprice,
             DateTime date)
         {
+            if (hotelId <= 0) throw new BadRequestException("HotelId cannot be less than or equal to 0");
+            if (minprice <= 0) throw new BadRequestException("MinPrice cannot be less than or equal to 0");
+            if (maxprice <= 0) throw new BadRequestException("MaxPrice cannot be less than or eqaul to 0");
+
             var rooms = await roomRepo.GetAllAsync(
                 filter: r => r.HotelId == hotelId &&
                              (!minprice.HasValue || r.Price >= minprice.Value) &&
@@ -71,14 +74,15 @@ namespace HotelManagement.Application.Services
             return MapToPagedResponse(rooms, parameters);
         }
 
-        public async Task<int> UpdateRoomAsync(int roomId, RoomForUpdatingDto model)
+        public async Task<int> UpdateRoomAsync(int hotelId, int roomId, RoomForUpdatingDto model)
         {
             if (model is null) throw new BadRequestException("Request model cannot be null");
             if (roomId <= 0) throw new BadRequestException("Room Id cannot be less than or equal to 0");
+            if (hotelId <= 0) throw new BadRequestException("Hotel Id cannot be less than or equal to 0");
             if (model.Price <= 0) throw new NotAllowedException("The room price cannot be less than or equal to 0");
 
             var room = await roomRepo.GetAsync(
-                filter: r => r.Id == roomId);
+                filter: r => r.Id == roomId && r.HotelId == hotelId);
 
             if (room is null) throw new NotFoundException($"Room with the Id {roomId} not found");
 
@@ -87,12 +91,13 @@ namespace HotelManagement.Application.Services
             return await roomRepo.SaveAsync();
         }
 
-        public async Task<int> DeleteRoomAsync(int roomId)
+        public async Task<int> DeleteRoomAsync(int hotelId, int roomId)
         {
+            if (hotelId <= 0) throw new BadRequestException("Hotel Id cannot be less than or equal to 0");
             if (roomId <= 0) throw new BadRequestException("Room Id cannot be less than or equal to 0");
 
             var room = await roomRepo.GetAsync(
-                filter: r => r.Id == roomId,
+                filter: r => r.Id == roomId && r.HotelId == hotelId,
                 include: r => r
                 .Include(r => r.ReservationRooms)
                     .ThenInclude(rr => rr.Reservation));

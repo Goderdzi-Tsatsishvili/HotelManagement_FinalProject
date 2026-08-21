@@ -1,7 +1,9 @@
 ﻿using HotelManagement.Application.Contracts.Service;
+using HotelManagement.Application.Models.Auth;
 using HotelManagement.Application.Models.Common;
 using HotelManagement.Application.Models.Hotel;
 using HotelManagement.Domain.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 
@@ -9,7 +11,7 @@ namespace HotelManagement.API.Controllers
 {
     [ApiController]
     [Route("api/hotels")]
-    public class HotelController(IHotelService hotelService) : ControllerBase
+    public class HotelController(IHotelService hotelService, IAuthService authService) : ControllerBase
     {
 
         [HttpPost("create-hotel")]
@@ -130,6 +132,29 @@ namespace HotelManagement.API.Controllers
             };
 
             return StatusCode(resp.HttpStatusCode, resp);
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpPost("{hotelId}/managers")]
+        public async Task<IActionResult> AddManager([FromRoute] int hotelId, [FromBody] ManagerRegistrationDto model)
+        {
+            var confirmationBaseUrl = BuildConfirmationBaseUrl(Request);
+            var res = await authService.RegisterManagerAsync(hotelId, model, confirmationBaseUrl);
+            var resp = new CommonResponse()
+            {
+                Message = CommonResponseMessage.SuccessMessage,
+                IsSuccess = true,
+                HttpStatusCode = Convert.ToInt32(HttpStatusCode.OK),
+                Result = res
+            };
+
+            return StatusCode(resp.HttpStatusCode, resp);
+        }
+
+        //Private Helper
+        private static string BuildConfirmationBaseUrl(HttpRequest request)
+        {
+            return $"{request.Scheme}://{request.Host}/api/auth/confirm-email";
         }
     }
 }

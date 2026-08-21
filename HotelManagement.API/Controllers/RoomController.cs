@@ -1,6 +1,7 @@
 ﻿using HotelManagement.Application.Contracts.Service;
 using HotelManagement.Application.Models.Common;
 using HotelManagement.Application.Models.Room;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 
@@ -60,6 +61,7 @@ namespace HotelManagement.API.Controllers
             return StatusCode(resp.HttpStatusCode, resp);
         }
 
+        [Authorize(Roles = "Manager")]
         [HttpPost]
         public async Task<IActionResult> CreateRoom([FromRoute] int hotelId, [FromBody] RoomForCreatingDto model)
         {
@@ -69,6 +71,38 @@ namespace HotelManagement.API.Controllers
                 Message = CommonResponseMessage.SuccessMessage,
                 IsSuccess = true,
                 HttpStatusCode = Convert.ToInt32(HttpStatusCode.Created),
+                Result = res
+            };
+
+            return StatusCode(resp.HttpStatusCode, resp);
+        }
+
+        [Authorize(Roles = "Manager")]
+        [HttpPatch("{roomId}")]
+        public async Task<IActionResult> UpdateRoom([FromRoute] int hotelId, [FromRoute] int roomId, [FromBody] RoomForUpdatingDto model)
+        {
+            var res = await roomService.UpdateRoomAsync(hotelId, roomId, model);
+            var resp = new CommonResponse()
+            {
+                Message = CommonResponseMessage.SuccessMessage,
+                IsSuccess = true,
+                HttpStatusCode = Convert.ToInt32(HttpStatusCode.OK),
+                Result = res
+            };
+
+            return StatusCode(resp.HttpStatusCode, resp);
+        }
+
+        [Authorize(Roles = "Manager")]
+        [HttpDelete("{roomId}")]
+        public async Task<IActionResult> DeleteRoom([FromRoute] int hotelId, [FromRoute] int roomId)
+        {
+            var res = await roomService.DeleteRoomAsync(hotelId, roomId);
+            var resp = new CommonResponse()
+            {
+                Message = CommonResponseMessage.SuccessMessage,
+                IsSuccess = true,
+                HttpStatusCode = Convert.ToInt32(HttpStatusCode.OK),
                 Result = res
             };
 
