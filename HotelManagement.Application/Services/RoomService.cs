@@ -37,7 +37,7 @@ namespace HotelManagement.Application.Services
             return mapper.Map<RoomForGettingDto>(room);
         }
 
-        public async Task<PagedResponseDto<RoomListForGettingDto>> GetAllRoomsAsync(int hotelId, PagedRequestDto parameters)
+        public async Task<PagedResponseDto<RoomListForGettingDto>> GetAllRoomsOfHotelAsync(int hotelId, PagedRequestDto parameters)
         {
             var rooms = await roomRepo.GetAllAsync(
                 filter: r => r.HotelId == hotelId,
@@ -45,6 +45,17 @@ namespace HotelManagement.Application.Services
                 ascending: parameters.Ascending,
                 pageNumber: parameters.PageNumber,
                 pageSize: parameters.PageSize);
+
+            return MapToPagedResponse(rooms, parameters);
+        }
+
+        public async Task<PagedResponseDto<RoomListForGettingDto>> GetAllRoomsAsync(PagedRequestDto parameters)
+        {
+            var rooms = await roomRepo.GetAllAsync(
+                orderBy: BuildOrderBy(parameters.SortBy),
+                ascending: parameters.Ascending,
+                pageSize: parameters.PageSize,
+                pageNumber: parameters.PageNumber);
 
             return MapToPagedResponse(rooms, parameters);
         }

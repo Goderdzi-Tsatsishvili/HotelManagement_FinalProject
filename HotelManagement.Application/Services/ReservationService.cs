@@ -50,22 +50,27 @@ namespace HotelManagement.Application.Services
             return await reservationRoomRepo.SaveAsync();
         }
 
-        public async Task<ReservationForGettingDto> GetReservationAsync(int hotelId, int reservationId)
+        public async Task<ReservationForGettingDto> GetReservationAsync(int reservationId)
         {
             if (reservationId <= 0) throw new BadRequestException("Reservation Id cannot be less than or equal to 0");
-            if (hotelId <= 0) throw new BadRequestException("Hotel Id cannot be less than or equal to 0");
 
             var reservation = await reservationRepo.GetAsync(
-                filter: rs =>
-                rs.Id == reservationId &&
-                rs.ReservationRooms.Any(
-                    rr => rr.Room.HotelId == hotelId),
-                include: rs => rs.Include(rs => rs.ReservationRooms)
-                                .ThenInclude(rr => rr.Room));
+                filter: rs => rs.Id == reservationId);
 
             if (reservation is null) throw new NotFoundException($"Reservation with the Id {reservationId} not found");
 
             return mapper.Map<ReservationForGettingDto>(reservation);
+        }
+
+        public async Task<PagedResponseDto<ReservationListForGettingDto>> GetAllReservationsAsync(PagedRequestDto parameters)
+        {
+            var reservations = await reservationRepo.GetAllAsync(
+                orderBy: BuildOrderBy(parameters.SortBy),
+                ascending: parameters.Ascending,
+                pageSize: parameters.PageSize,
+                pageNumber: parameters.PageNumber);
+
+            return MapToPagedResponse(reservations, parameters);
         }
 
         public async Task<PagedResponseDto<ReservationListForGettingDto>> GetReservationsOfHotelAsync(int hotelId, PagedRequestDto parameters)
@@ -76,6 +81,7 @@ namespace HotelManagement.Application.Services
                 filter: rs => rs.ReservationRooms
                 .Any(rr => rr.Room.HotelId == hotelId),
                 orderBy: BuildOrderBy(parameters.SortBy),
+                ascending: parameters.Ascending,
                 pageNumber: parameters.PageNumber,
                 pageSize: parameters.PageSize);
 
@@ -84,31 +90,50 @@ namespace HotelManagement.Application.Services
 
         public async Task<PagedResponseDto<ReservationListForGettingDto>> GetReservationsBySearchParamsAsync(
             PagedRequestDto parameters,
-            int? hotelId,
-            string? guestId,
-            int? roomId,
-            DateTime? date)
+            int? hotelId = null,
+            string? guestId = null,
+            int? roomId = null,
+            bool? active = null,
+            DateTime? date = null)
         {
             var reservations = await reservationRepo.GetAllAsync(
-                filter: rs => rs.GuestId == guestId ||
-                    (!hotelId.HasValue) || rs.ReservationRooms.Any(rr => rr.Room.HotelId == hotelId) ||
-                    (!roomId.HasValue) || rs.ReservationRooms.Any(rr => rr.Room.Id == roomId) ||
-                    rs.CheckInDate <= date && rs.CheckOutDate > date,
+                filter: rs =>
+                    (!hotelId.HasValue ||
+                        rs.ReservationRooms.Any(rr => rr.Room.HotelId == hotelId.Value)) &&
+                    (guestId == null ||
+                        rs.GuestId == guestId) &&
+                    (!roomId.HasValue ||
+                        rs.ReservationRooms.Any(rr => rr.RoomId == roomId.Value)) &&
+                    (!active.HasValue ||
+                        (active.Value && rs.CheckOutDate > DateTime.UtcNow) ||
+                        (!active.Value && rs.CheckOutDate <= DateTime.UtcNow)) &&
+                    (!date.HasValue ||
+                        (rs.CheckInDate <= date.Value &&
+                        rs.CheckOutDate > date.Value)),
                 orderBy: BuildOrderBy(parameters.SortBy),
+                ascending: parameters.Ascending,
                 pageSize: parameters.PageSize,
                 pageNumber: parameters.PageNumber);
 
             return MapToPagedResponse(reservations, parameters);
         }
 
-        public async Task<int> UpdateReservationAsync(int hotelId, ReservationForUpdatingDto model)
+        public async Task<bool> HasActiveOrUpcomingReservations(string guestId)
         {
-            if (hotelId <= 0) throw new BadRequestException("HotelId cannot be less than or equal to 0");
+            if (guestId is null) throw new BadRequestException("GuestId cannot be null");
+
+            return await reservationRepo.ExistsAsync(r =>
+                r.GuestId == guestId &&
+                r.CheckOutDate > DateTime.UtcNow);
+        }
+
+        public async Task<int> UpdateReservationAsync(int reservationId, ReservationForUpdatingDto model)
+        {
+            if (reservationId <= 0) throw new BadRequestException("ReservationId cannot be less than or equal to 0");
             if (model is null) throw new BadRequestException("Request model cannot be null");
 
             var reservation = await reservationRepo.GetAsync(
-                filter: rs => rs.ReservationRooms
-                    .Any(rr => rr.Room.HotelId == hotelId));
+                filter: rs => rs.Id == reservationId);
 
             if (reservation is null) throw new NotFoundException($"Reservation with the Id {reservation.Id} not found");
 
@@ -117,14 +142,12 @@ namespace HotelManagement.Application.Services
             return await reservationRepo.SaveAsync();
         }
 
-        public async Task<int> DeleteReservationAsync(int hotelId, int reservationId)
+        public async Task<int> DeleteReservationAsync(int reservationId)
         {
-            if (hotelId <= 0) throw new BadRequestException("HotelId cannot be less than or equal to 0");
             if (reservationId <= 0) throw new BadRequestException("ReservationId cannot be less than or equal to 0");
 
             var reservation = await reservationRepo.GetAsync(
-                filter: rs => rs.Id == reservationId &&
-                        rs.ReservationRooms.Any(rr => rr.Room.HotelId == hotelId));
+                filter: rs => rs.Id == reservationId);
 
             if (reservation is null) throw new NotFoundException($"Reservation with the Id {reservationId} not found");
 

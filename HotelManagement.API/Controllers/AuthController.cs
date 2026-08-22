@@ -3,6 +3,7 @@ using HotelManagement.Application.Models.Auth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
+using System.Security.Claims;
 
 namespace HotelManagement.API.Controllers
 {
@@ -67,6 +68,39 @@ namespace HotelManagement.API.Controllers
                 Message = "Email Confirmed Successfully",
                 IsSuccess = true,
                 HttpStatusCode = Convert.ToInt32(HttpStatusCode.OK)
+            };
+
+            return StatusCode(resp.HttpStatusCode, resp);
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpDelete("guest/delete-guest")]
+        public async Task<IActionResult> DeleteGuest(string guestId)
+        {
+            var res = await authService.DeleteGuestAsync(guestId);
+            var resp = new CommonResponse()
+            {
+                Message = CommonResponseMessage.SuccessMessage,
+                IsSuccess = true,
+                HttpStatusCode = Convert.ToInt32(HttpStatusCode.OK),
+                Result = res
+            };
+
+            return StatusCode(resp.HttpStatusCode, resp);
+        }
+
+        [HttpPost("reset-password")]
+        public async Task<IActionResult> ResetPassword([FromBody] string newPassword)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var res = authService.ResetPasswordAsync(userId, newPassword);
+            var resp = new CommonResponse()
+            {
+                Message = CommonResponseMessage.SuccessMessage,
+                IsSuccess = true,
+                HttpStatusCode = Convert.ToInt32(HttpStatusCode.OK),
+                Result = res
             };
 
             return StatusCode(resp.HttpStatusCode, resp);

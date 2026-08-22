@@ -8,10 +8,10 @@ using System.Net;
 namespace HotelManagement.API.Controllers
 {
     [ApiController]
-    [Route("api/hotels/{hotelId}/rooms")]
+    [Route("api/hotels")]
     public class RoomController(IRoomService roomService) : ControllerBase
     {
-        [HttpGet("{roomId}")]
+        [HttpGet("{hotelid}/rooms/{roomId}")]
         public async Task<IActionResult> GetRoom([FromRoute] int hotelId, [FromRoute] int roomId)
         {
             var room = await roomService.GetRoomAsync(hotelId, roomId);
@@ -26,7 +26,7 @@ namespace HotelManagement.API.Controllers
             return StatusCode(resp.HttpStatusCode, resp);
         }
 
-        [HttpGet("get-by-price")]
+        [HttpGet("{hotelId}/rooms/get-by-price")]
         public async Task<IActionResult> GetRoomByPriceRange(
             [FromRoute] int hotelId, 
             [FromQuery] PagedRequestDto parameters, 
@@ -46,10 +46,27 @@ namespace HotelManagement.API.Controllers
             return StatusCode(resp.HttpStatusCode, resp);
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetRooms([FromRoute] int hotelId, [FromQuery] PagedRequestDto parameters)
+        [Authorize(Roles = "Admin")]
+        [HttpGet("rooms/get-all")]
+        public async Task<IActionResult> GetRooms([FromQuery] PagedRequestDto parameters)
         {
-            var rooms = await roomService.GetAllRoomsAsync(hotelId, parameters);
+            var rooms = await roomService.GetAllRoomsAsync(parameters);
+            var resp = new CommonResponse()
+            {
+                Message = CommonResponseMessage.SuccessMessage,
+                IsSuccess = true,
+                HttpStatusCode = Convert.ToInt32(HttpStatusCode.OK),
+                Result = rooms
+            };
+
+            return StatusCode(resp.HttpStatusCode, resp);
+        }
+
+
+        [HttpGet("{hotelId}/rooms/get-all-of-hotel")]
+        public async Task<IActionResult> GetAllRoomsOfHotel([FromRoute] int hotelId, PagedRequestDto parameters)
+        {
+            var rooms = await roomService.GetAllRoomsOfHotelAsync(hotelId, parameters);
             var resp = new CommonResponse()
             {
                 Message = CommonResponseMessage.SuccessMessage,
@@ -62,7 +79,7 @@ namespace HotelManagement.API.Controllers
         }
 
         [Authorize(Roles = "Manager")]
-        [HttpPost]
+        [HttpPost("{hotelId}/rooms/create-new-room")]
         public async Task<IActionResult> CreateRoom([FromRoute] int hotelId, [FromBody] RoomForCreatingDto model)
         {
             var res = await roomService.CreateNewRoomAsync(hotelId, model);
@@ -78,7 +95,7 @@ namespace HotelManagement.API.Controllers
         }
 
         [Authorize(Roles = "Manager")]
-        [HttpPatch("{roomId}")]
+        [HttpPatch("{hotelId}/rooms/{roomId}/update")]
         public async Task<IActionResult> UpdateRoom([FromRoute] int hotelId, [FromRoute] int roomId, [FromBody] RoomForUpdatingDto model)
         {
             var res = await roomService.UpdateRoomAsync(hotelId, roomId, model);
@@ -94,7 +111,7 @@ namespace HotelManagement.API.Controllers
         }
 
         [Authorize(Roles = "Manager")]
-        [HttpDelete("{roomId}")]
+        [HttpDelete("{hotelId}/rooms/{roomId}/remove")]
         public async Task<IActionResult> DeleteRoom([FromRoute] int hotelId, [FromRoute] int roomId)
         {
             var res = await roomService.DeleteRoomAsync(hotelId, roomId);

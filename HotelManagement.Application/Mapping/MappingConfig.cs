@@ -1,6 +1,7 @@
 ﻿
 using HotelManagement.Application.Models.Auth;
 using HotelManagement.Application.Models.Hotel;
+using HotelManagement.Application.Models.Manager;
 using HotelManagement.Application.Models.Reservation;
 using HotelManagement.Application.Models.Room;
 using HotelManagement.Domain.Entities;
@@ -17,6 +18,7 @@ namespace HotelManagement.Application.Mapping
             config.NewConfig<Hotel, HotelForGettingDto>();
             config.NewConfig<HotelForUpdatingDto, Hotel>();
             config.NewConfig<Hotel, HotelListForGettingDto>();
+            config.NewConfig<Hotel, HotelWithManagerForGettingDto>();
 
             config.NewConfig<RoomForCreatingDto, Room>();
             config.NewConfig<Room, RoomForGettingDto>();
@@ -58,6 +60,8 @@ namespace HotelManagement.Application.Mapping
                 .Map(dest => dest.LastName, src => src.LastName)
                 .Map(dest => dest.PersonalNumber, src => src.PersonalNumber)
                 .Map(dest => dest.PhoneNumber, src => src.PhoneNumber);
+
+            config.NewConfig<ManagerForGettingDto, AppUser>();
         }
     }
 }

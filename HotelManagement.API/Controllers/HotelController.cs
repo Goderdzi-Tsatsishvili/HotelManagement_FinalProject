@@ -2,7 +2,6 @@
 using HotelManagement.Application.Models.Auth;
 using HotelManagement.Application.Models.Common;
 using HotelManagement.Application.Models.Hotel;
-using HotelManagement.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
@@ -59,40 +58,10 @@ namespace HotelManagement.API.Controllers
             return StatusCode(resp.HttpStatusCode, resp);
         }
 
-        [HttpGet("get-all-by-country-name/{countryName}")]
-        public async Task<IActionResult> GetAllHotelsOfCountry([FromRoute] string countryName, [FromQuery] PagedRequestDto model)
+        [HttpGet("search")]
+        public async Task<IActionResult> GetHotelsBySearch([FromQuery] string? countryName, [FromQuery] string? city, [FromQuery] int? rating, [FromQuery] PagedRequestDto model)
         {
-            var hotels = await hotelService.GetAllHotelsOfCountryAsync(countryName, model);
-            var resp = new CommonResponse()
-            {
-                Message = CommonResponseMessage.SuccessMessage,
-                IsSuccess = true,
-                HttpStatusCode = Convert.ToInt32(HttpStatusCode.OK),
-                Result = hotels
-            };
-
-            return StatusCode(resp.HttpStatusCode, resp);
-        }
-
-        [HttpGet("get-all-by-city-name/{cityName}")]
-        public async Task<IActionResult> GetAllHotelsOfCity([FromRoute] string cityName, [FromQuery] PagedRequestDto model)
-        {
-            var hotels = await hotelService.GetAllHotelsOfCityAsync(cityName, model);
-            var resp = new CommonResponse()
-            {
-                Message = CommonResponseMessage.SuccessMessage,
-                IsSuccess = true,
-                HttpStatusCode = Convert.ToInt32(HttpStatusCode.OK),
-                Result = hotels
-            };
-
-            return StatusCode(resp.HttpStatusCode, resp);
-        }
-
-        [HttpGet("get-all-by-rating/{rating}")]
-        public async Task<IActionResult> GetAllHotelsOfRating([FromRoute] int rating, [FromQuery] PagedRequestDto model)
-        {
-            var hotels = await hotelService.GetAllHotelsOfRatingAsync(rating, model);
+            var hotels = await hotelService.GetAllHotelsBySearchParamsAsync(countryName, city, rating, model);
             var resp = new CommonResponse()
             {
                 Message = CommonResponseMessage.SuccessMessage,
@@ -140,6 +109,22 @@ namespace HotelManagement.API.Controllers
         {
             var confirmationBaseUrl = BuildConfirmationBaseUrl(Request);
             var res = await authService.RegisterManagerAsync(hotelId, model, confirmationBaseUrl);
+            var resp = new CommonResponse()
+            {
+                Message = CommonResponseMessage.SuccessMessage,
+                IsSuccess = true,
+                HttpStatusCode = Convert.ToInt32(HttpStatusCode.OK),
+                Result = res
+            };
+
+            return StatusCode(resp.HttpStatusCode, resp);
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpDelete("managers/{managerId}/delete-manager")]
+        public async Task<IActionResult> DeleteManager([FromRoute] string managerId)
+        {
+            var res = await authService.DeleteManagerAsync(managerId);
             var resp = new CommonResponse()
             {
                 Message = CommonResponseMessage.SuccessMessage,

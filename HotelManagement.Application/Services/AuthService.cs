@@ -3,9 +3,11 @@ using HotelManagement.Application.Contracts.Persistence;
 using HotelManagement.Application.Contracts.Service;
 using HotelManagement.Application.Exceptions;
 using HotelManagement.Application.Models.Auth;
+using HotelManagement.Application.Models.Common;
 using HotelManagement.Domain.Entities;
 using MapsterMapper;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
 namespace HotelManagement.Application.Services
@@ -16,6 +18,7 @@ namespace HotelManagement.Application.Services
         IConfiguration config,
         IEmailService emailService,
         IHotelService hotelService,
+        IReservationService reservationService,
         UserManager<AppUser> userManager,
         RoleManager<IdentityRole> roleManager,
         IMapper mapper
@@ -82,6 +85,19 @@ namespace HotelManagement.Application.Services
             await userManager.ResetAccessFailedCountAsync(user);
         }
 
+        public async Task ResetPasswordAsync(string userId, string newPassword)
+        {
+            var user = await userManager.FindByIdAsync(userId);
+
+            if (user is null) throw new NotFoundException($"User '{user.FirstName} {user.LastName}' Not Fount");
+
+            var token = await userManager.GeneratePasswordResetTokenAsync(user);
+
+            var result = await userManager.ResetPasswordAsync(user, token, newPassword);
+
+            if (!result.Succeeded) throw new BadRequestException(result.Errors.First().Description);
+        }
+
         public async Task<LoginResponseDto> LoginAsync(LoginRequestDto loginRequestDto)
         {
             var user = await userManager.FindByEmailAsync(loginRequestDto.Email.Trim());
@@ -102,19 +118,48 @@ namespace HotelManagement.Application.Services
             return await GenerateTokenPairAsync(user, roles);
         }
 
-        public async Task<int> DeleteManagerAsync(int hotelId, string managerId)
+        public async Task<int> DeleteManagerAsync(string managerId)
         {
-            if (hotelId <= 0) throw new BadRequestException("HotelId cannot be less than or equal to 0");
             if (managerId is null) throw new BadRequestException("ManagerId cannot be null");
 
-            throw new NotImplementedException();
+            var manager = await userManager.FindByIdAsync(managerId);
+
+            if (manager is null) throw new NotFoundException($"Manager '{manager.FirstName} {manager.LastName}' Not Found");
+
+            var roles = await userManager.GetRolesAsync(manager);
+
+            if (!roles.Contains("Manager")) throw new NotAllowedException("The Specified user is not a Manager");
+
+            var hotel = await hotelService.GetHotelWithManagerAsync(manager.HotelId);
+
+            if (hotel is null) throw new NotFoundException($"Hotel with the Id {manager.HotelId} not found");
+
+            if (!hotel.Managers.Any(m => m.ManagerId != manager.Id)) throw new NotAllowedException("The hotel must have another manager before this manager can be deleted");
+
+            var result = await userManager.DeleteAsync(manager);
+
+            if (!result.Succeeded) throw new BadRequestException(result.Errors.First().Description);
+
+            return 1;
         }
 
         public async Task<int> DeleteGuestAsync(string guestId)
         {
             if (guestId is null) throw new BadRequestException("GuestId cannot be null");
 
-            throw new NotImplementedException();
+            var guest = await userManager.FindByIdAsync(guestId);
+
+            if (guest is null) throw new NotFoundException($"Guest '{guest.FirstName} {guest.LastName}' Not Found");
+
+            var roles = await userManager.GetRolesAsync(guest);
+
+            if (!roles.Contains("Guest")) throw new NotAllowedException("The specified user is not a Guest");
+
+            var result = await reservationService.HasActiveOrUpcomingReservations(guestId);
+
+            if (result == null) throw new NotFoundException($"The guest '{guest.FirstName} {guest.LastName}' doesnt have any reservations");
+
+            return 1;
         }
 
         //Private Helpers

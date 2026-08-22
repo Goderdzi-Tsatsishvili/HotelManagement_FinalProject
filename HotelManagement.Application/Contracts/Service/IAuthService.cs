@@ -10,7 +10,8 @@ namespace HotelManagement.Application.Contracts.Service
         Task<string> RegisterAdminAsync(AdminRegistrationDto request, string accountConfirmationUrl = null);
         Task<LoginResponseDto> LoginAsync(LoginRequestDto request);
         Task ConfirmEmailAsync(string userId, string token);
-        Task<int> DeleteManagerAsync(int hotelId, string managerId);
+        Task ResetPasswordAsync(string userId, string newPassword);
+        Task<int> DeleteManagerAsync(string managerId);
         Task<int> DeleteGuestAsync(string guestId);
     }
 }

@@ -11,6 +11,16 @@ namespace HotelManagement.Infrastructure.Data
         {
             modelBuilder.Entity<RefreshToken>(entitiy => entitiy.HasIndex(x => x.Token).IsUnique());
         }
+
+        public static void EnsurePhoneNumberIsUnique(this ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<AppUser>(entity => entity.HasIndex(x => x.PhoneNumber).IsUnique());
+        }
+
+        public static void EnsurePersonalNumberIsUnique(this ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<AppUser>(entity => entity.HasIndex(x => x.PersonalNumber).IsUnique());
+        }
         public static void NormalizeIdentityTableNames(this ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<AppUser>(entity => entity.ToTable(name: "Users"));

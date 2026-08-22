@@ -1,0 +1,40 @@
+﻿using HotelManagement.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
+
+namespace HotelManagement.API.Jobs
+{
+    public class RefreshTokenCleanupJob(
+        IServiceScopeFactory scopeFactory,
+        IConfiguration configuration,
+        ILogger<RefreshTokenCleanupJob> logger) : BackgroundService
+    {
+        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+        {
+            var jobExpireHours = configuration.GetValue<int>("Jobs:RefreshTokenCleanupJob:ExpiryHours");
+
+            while (!stoppingToken.IsCancellationRequested)
+            {
+                try
+                {
+                    using var scope = scopeFactory.CreateScope();
+                    var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+                    var cutoff = DateTime.Now;
+
+                    var deleted = await context.RefreshTokens
+                        .Where(rt => rt.ExpiresAt < cutoff || rt.RevokedAt != null)
+                        .ExecuteDeleteAsync(stoppingToken);
+
+                    if (deleted > 0)
+                        logger.LogInformation("Cleaned up {Count} expired/revoked refresh tokens", deleted);
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError(ex, "Error during refresh token cleanup");
+                }
+
+                await Task.Delay(TimeSpan.FromHours(jobExpireHours), stoppingToken);
+            }
+        }
+    }
+}

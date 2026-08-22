@@ -38,6 +38,20 @@ namespace HotelManagement.Application.Services
             return mapper.Map<HotelForGettingDto>(hotel);
         }
 
+        public async Task<HotelWithManagerForGettingDto> GetHotelWithManagerAsync(int? hotelId)
+        {
+            if (hotelId <= 0) throw new BadRequestException("HotelId cannot be less than or equal to 0");
+
+            var hotel = await hotelRepo.GetAsync(
+                filter: h => h.Id == hotelId,
+                include: h => h
+                    .Include(h => h.Managers));
+
+            if (hotel is null) throw new NotFoundException($"Hotel with the Id {hotelId} not found");
+
+            return mapper.Map<HotelWithManagerForGettingDto>(hotel);
+        }
+
         public async Task<int> DeleteHotelAsync(int hotelId)
         {
             if (hotelId <= 0) throw new BadRequestException("HotelId cannot be less or equal to 0");
@@ -72,40 +86,15 @@ namespace HotelManagement.Application.Services
             return MapToPagedResponse(hotels, parameters);
         }
 
-        public async Task<PagedResponseDto<HotelListForGettingDto>> GetAllHotelsOfCountryAsync(string countryName, PagedRequestDto parameters)
+        public async Task<PagedResponseDto<HotelListForGettingDto>> GetAllHotelsBySearchParamsAsync(string? countryName, string? city, int? rating, PagedRequestDto parameters)
         {
             if (countryName is null) throw new BadRequestException("CountryName cannot be null");
 
             var hotels = await hotelRepo.GetAllAsync(
-                filter: h => h.Country == countryName,
-                orderBy: BuildOrderBy(parameters.SortBy),
-                ascending: parameters.Ascending,
-                pageNumber: parameters.PageNumber,
-                pageSize: parameters.PageSize);
-
-            return MapToPagedResponse(hotels, parameters);
-        }
-
-        public async Task<PagedResponseDto<HotelListForGettingDto>> GetAllHotelsOfCityAsync(string cityName, PagedRequestDto parameters)
-        {
-            if (cityName is null) throw new BadRequestException("CityName cannot be null");
-
-            var hotels = await hotelRepo.GetAllAsync(
-                filter: h => h.City == cityName,
-                orderBy: BuildOrderBy(parameters.SortBy),
-                ascending: parameters.Ascending,
-                pageNumber: parameters.PageNumber,
-                pageSize: parameters.PageSize);
-
-            return MapToPagedResponse(hotels, parameters);
-        }
-
-        public async Task<PagedResponseDto<HotelListForGettingDto>> GetAllHotelsOfRatingAsync(int rating, PagedRequestDto parameters)
-        {
-            if (rating < 0 || rating > 5) throw new BadRequestException("Rating cannot be less than 0 or more than 5");
-
-            var hotels = await hotelRepo.GetAllAsync(
-                filter: h => h.Rating >= rating,
+                filter: h => 
+                (countryName == null || h.Country == countryName) &&
+                (city == null || h.City == city) &&
+                (!rating.HasValue || h.Rating == rating),
                 orderBy: BuildOrderBy(parameters.SortBy),
                 ascending: parameters.Ascending,
                 pageNumber: parameters.PageNumber,

@@ -8,7 +8,8 @@ namespace HotelManagement.Application.Contracts.Service
     {
         Task<int> CreateNewRoomAsync(int hotelId, RoomForCreatingDto model);
         Task<RoomForGettingDto> GetRoomAsync(int hotelId, int roomId);
-        Task<PagedResponseDto<RoomListForGettingDto>> GetAllRoomsAsync(int hotelId, PagedRequestDto parameters);    
+        Task<PagedResponseDto<RoomListForGettingDto>> GetAllRoomsOfHotelAsync(int hotelId, PagedRequestDto parameters);
+        Task<PagedResponseDto<RoomListForGettingDto>> GetAllRoomsAsync(PagedRequestDto parameters);
         Task<PagedResponseDto<RoomListForGettingDto>> GetRoomsByPriceAndAvailabilityAsync(
             int hotelId,
             PagedRequestDto parameters,

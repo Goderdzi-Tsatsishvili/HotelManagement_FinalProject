@@ -18,6 +18,8 @@ namespace HotelManagement.Infrastructure.Data
             builder.SeedData();
             builder.NormalizeIdentityTableNames();
             builder.EnsureRefreshTokenIsUnique();
+            builder.EnsurePersonalNumberIsUnique();
+            builder.EnsurePhoneNumberIsUnique();
 
             builder.Entity<ReservationRoom>()
                 .HasKey(rr => new { rr.ReservationId, rr.RoomId });
