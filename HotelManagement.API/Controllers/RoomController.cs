@@ -11,7 +11,7 @@ namespace HotelManagement.API.Controllers
     [Route("api/hotels")]
     public class RoomController(IRoomService roomService) : ControllerBase
     {
-        [HttpGet("{hotelid}/rooms/{roomId}")]
+        [HttpGet("{hotelId}/rooms/{roomId}")]
         public async Task<IActionResult> GetRoom([FromRoute] int hotelId, [FromRoute] int roomId)
         {
             var room = await roomService.GetRoomAsync(hotelId, roomId);
@@ -64,7 +64,7 @@ namespace HotelManagement.API.Controllers
 
 
         [HttpGet("{hotelId}/rooms/get-all-of-hotel")]
-        public async Task<IActionResult> GetAllRoomsOfHotel([FromRoute] int hotelId, PagedRequestDto parameters)
+        public async Task<IActionResult> GetAllRoomsOfHotel([FromRoute] int hotelId, [FromQuery] PagedRequestDto parameters)
         {
             var rooms = await roomService.GetAllRoomsOfHotelAsync(hotelId, parameters);
             var resp = new CommonResponse()

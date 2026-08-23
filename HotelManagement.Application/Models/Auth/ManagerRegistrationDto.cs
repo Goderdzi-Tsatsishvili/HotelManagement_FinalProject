@@ -9,6 +9,5 @@ namespace HotelManagement.Application.Models.Auth
         public string Password { get; set; }
         public string PersonalNumber { get; set; }
         public string PhoneNumber { get; set; }
-        public int? HotelId { get; set; }
     }
 }

@@ -85,7 +85,7 @@ namespace HotelManagement.API.Controllers
         }
 
         [HttpGet("reservations/get-all-of-guest")]
-        public async Task<IActionResult> GetAllReservationsOfGuest(PagedRequestDto parameters)
+        public async Task<IActionResult> GetAllReservationsOfGuest([FromQuery] PagedRequestDto parameters)
         {
             var reservations = await reservationService.GetAllReservationsAsync(parameters);
             var resp = new CommonResponse()

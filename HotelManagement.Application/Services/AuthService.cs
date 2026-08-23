@@ -134,7 +134,7 @@ namespace HotelManagement.Application.Services
 
             if (hotel is null) throw new NotFoundException($"Hotel with the Id {manager.HotelId} not found");
 
-            if (!hotel.Managers.Any(m => m.ManagerId != manager.Id)) throw new NotAllowedException("The hotel must have another manager before this manager can be deleted");
+            if (!hotel.Managers.Any(m => m.ManagerId != manager.Id) || hotel.Managers.Count == 1) throw new NotAllowedException("The hotel must have another manager before this manager can be deleted");
 
             var result = await userManager.DeleteAsync(manager);
 

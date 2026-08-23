@@ -88,8 +88,6 @@ namespace HotelManagement.Application.Services
 
         public async Task<PagedResponseDto<HotelListForGettingDto>> GetAllHotelsBySearchParamsAsync(string? countryName, string? city, int? rating, PagedRequestDto parameters)
         {
-            if (countryName is null) throw new BadRequestException("CountryName cannot be null");
-
             var hotels = await hotelRepo.GetAllAsync(
                 filter: h => 
                 (countryName == null || h.Country == countryName) &&

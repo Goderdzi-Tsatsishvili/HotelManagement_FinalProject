@@ -48,8 +48,7 @@ namespace HotelManagement.Application.Mapping
                 .Map(dest => dest.FirstName, src => src.FirstName)
                 .Map(dest => dest.LastName, src => src.LastName)
                 .Map(dest => dest.PersonalNumber, src => src.PersonalNumber)
-                .Map(dest => dest.PhoneNumber, src => src.PhoneNumber)
-                .Map(dest => dest.HotelId, src => src.HotelId);
+                .Map(dest => dest.PhoneNumber, src => src.PhoneNumber);
 
             config.NewConfig<AdminRegistrationDto, AppUser>()
                 .Map(dest => dest.UserName, src => src.Email)

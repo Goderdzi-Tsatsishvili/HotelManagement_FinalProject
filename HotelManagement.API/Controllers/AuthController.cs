@@ -11,7 +11,7 @@ namespace HotelManagement.API.Controllers
     [Route("api/auth")]
     public class AuthController(IAuthService authService) : ControllerBase
     {
-        [Authorize(Roles = "Admin")]
+        
         [HttpPost("register-admin")]
         public async Task<IActionResult> RegisterAdmin([FromBody] AdminRegistrationDto request)
         {
