@@ -1,3 +1,4 @@
+using HotelManagement.API.Jobs;
 using HotelManagement.API.Middleware;
 using HotelManagement.Application.Contracts.Persistence;
 using HotelManagement.Application.Contracts.Service;
@@ -82,6 +83,9 @@ builder.Services.AddIdentity<AppUser, IdentityRole>(options =>
 })
 .AddEntityFrameworkStores<AppDbContext>()
 .AddDefaultTokenProviders();
+
+//Background Services
+builder.Services.AddHostedService<RefreshTokenCleanupJob>();
 
 //Mapster
 var config = TypeAdapterConfig.GlobalSettings;
