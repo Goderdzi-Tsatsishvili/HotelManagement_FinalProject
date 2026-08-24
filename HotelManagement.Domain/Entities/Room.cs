@@ -1,25 +1,23 @@
 ﻿
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Reflection.PortableExecutable;
 
 namespace HotelManagement.Domain.Entities
 {
-    public class Reservation
+    public class Room
     {
         [Key]
         [Required]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
-        public DateTime CheckInDate { get; set; }
-        public DateTime CheckOutDate { get; set; }
+        public string Name { get; set; }
+        public decimal Price { get; set; }
 
-        [ForeignKey(nameof(Guest))]
-        public string GuestId { get; set; }
+        [ForeignKey(nameof(RoomHotel))]
+        public int HotelId { get; set; }
 
-
-        //Navigation Propreties
-        public AppUser Guest { get; set; }
+        //Navigation Properties
+        public Hotel RoomHotel { get; set; }
         public ICollection<ReservationRoom> ReservationRooms { get; set; }
     }
 }
