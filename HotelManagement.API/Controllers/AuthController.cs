@@ -94,13 +94,12 @@ namespace HotelManagement.API.Controllers
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            var res = authService.ResetPasswordAsync(userId, newPassword);
+            await authService.ResetPasswordAsync(userId, newPassword);
             var resp = new CommonResponse()
             {
                 Message = CommonResponseMessage.SuccessMessage,
                 IsSuccess = true,
-                HttpStatusCode = Convert.ToInt32(HttpStatusCode.OK),
-                Result = res
+                HttpStatusCode = Convert.ToInt32(HttpStatusCode.OK)
             };
 
             return StatusCode(resp.HttpStatusCode, resp);
