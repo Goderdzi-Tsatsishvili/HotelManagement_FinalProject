@@ -8,6 +8,8 @@ namespace HotelManagement.Application.Contracts.Service
         Task<string> RegisterGuestAsync(GuestRegistrationDto request, string accountConfirmationUrl = null);
         Task<string> RegisterManagerAsync(int hotelId, ManagerRegistrationDto request, string accountConfirmationUrl = null);
         Task<string> RegisterAdminAsync(AdminRegistrationDto request, string accountConfirmationUrl = null);
+        Task<LoginResponseDto> RefreshTokenAsync(string refreshToken);
+        Task RevokeRefreshTokenAsync(string refreshToken);
         Task<LoginResponseDto> LoginAsync(LoginRequestDto request);
         Task ConfirmEmailAsync(string userId, string token);
         Task ResetPasswordAsync(string userId, string newPassword);

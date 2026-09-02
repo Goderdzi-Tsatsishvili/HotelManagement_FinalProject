@@ -1,6 +1,7 @@
 ﻿using HotelManagement.Application.Contracts.Service;
 using HotelManagement.Application.Models.Auth;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using System.Security.Claims;
@@ -54,6 +55,37 @@ namespace HotelManagement.API.Controllers
                 IsSuccess = true,
                 HttpStatusCode = Convert.ToInt32(HttpStatusCode.OK),
                 Result = res
+            };
+
+            return StatusCode(resp.HttpStatusCode, resp);
+        }
+
+        [HttpPost("refresh-token")]
+        public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequestDto model)
+        {
+            var result = await authService.RefreshTokenAsync(model.RefreshToken);
+
+            var resp = new CommonResponse()
+            {
+                Message = CommonResponseMessage.SuccessMessage,
+                IsSuccess = true,
+                HttpStatusCode = Convert.ToInt32(HttpStatusCode.OK),
+                Result = result
+            };
+
+            return StatusCode(resp.HttpStatusCode, resp);
+        }
+
+        [HttpPost("revoke-token")]
+        public async Task<IActionResult> RevokeToken([FromBody] RefreshTokenRequestDto model)
+        {
+            await authService.RevokeRefreshTokenAsync(model.RefreshToken);
+
+            var resp = new CommonResponse()
+            {
+                Message = CommonResponseMessage.SuccessMessage,
+                IsSuccess = true,
+                HttpStatusCode = Convert.ToInt32(HttpStatusCode.OK)
             };
 
             return StatusCode(resp.HttpStatusCode, resp);

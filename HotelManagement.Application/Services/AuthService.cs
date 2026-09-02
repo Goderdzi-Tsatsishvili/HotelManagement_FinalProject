@@ -64,6 +64,43 @@ namespace HotelManagement.Application.Services
                 accountConfirmationUrl);
         }
 
+        public async Task<LoginResponseDto> RefreshTokenAsync(string refreshToken)
+        {
+            var existing = await refreshTokenRepo.GetAsync(
+                x => x.Token == refreshToken,
+                include: q => q.Include(x => x.User));
+
+            if (existing == null)
+                throw new BadRequestException("Invalid refresh token");
+
+            if (!existing.IsActive)
+                throw new UnauthorizedException(
+                    existing.IsExpired ? "Refresh token has expired" : "Refresh token has been revoked");
+
+            existing.RevokedAt = DateTimeOffset.Now;
+
+            var roles = await userManager.GetRolesAsync(existing.User);
+            var response = await GenerateTokenPairAsync(existing.User, roles);
+
+            await refreshTokenRepo.SaveAsync();
+
+            return response;
+        }
+
+        public async Task RevokeRefreshTokenAsync(string refreshToken)
+        {
+            var existing = await refreshTokenRepo.GetAsync(x => x.Token == refreshToken);
+
+            if (existing == null)
+                throw new BadRequestException("Invalid refresh token");
+
+            if (!existing.IsActive)
+                throw new BadRequestException("Token is already inactive");
+
+            existing.RevokedAt = DateTimeOffset.Now;
+            await refreshTokenRepo.SaveAsync();
+        }
+
         public async Task ConfirmEmailAsync(string userId, string token)
         {
             if (string.IsNullOrWhiteSpace(userId) || string.IsNullOrWhiteSpace(token))
