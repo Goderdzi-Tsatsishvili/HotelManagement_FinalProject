@@ -12,7 +12,7 @@ namespace HotelManagement.API.Controllers
     [Route("api/hotels")]
     public class HotelController(IHotelService hotelService, IAuthService authService) : ControllerBase
     {
-
+        [Authorize(Roles = "Admon")]
         [HttpPost("create-hotel")]
         public async Task<IActionResult> CreateNewHotel([FromBody] HotelForCreatingDto model)
         {
